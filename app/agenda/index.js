@@ -2,16 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, View, Dimensions, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
+import * as Haptics from 'expo-haptics';
 import SwipeCard from '../../components/SwipeCard';
 import DatePickerModal from '../../components/DatePickerModal';
 import EmptyState from '../../components/EmptyState';
-import { getCitasByDate } from '../../lib/mockCitas';
+import { getCitasByDate, citasByDate } from '../../lib/mockCitas';
 import { colors, spacing, typography, radius } from '../../src/theme/exora';
 
 dayjs.locale('es');
+
+const nudge = (sharedX, dir = 'left') => {
+  'worklet';
+  const delta = dir === 'left' ? -14 : 14;
+  sharedX.value = withTiming(delta, { duration: 90 }, () => {
+    sharedX.value = withTiming(0, { duration: 120 });
+  });
+};
 
 // Pantalla de agenda que permite navegar por las citas con gestos y selección de fecha
 export default function Agenda() {
@@ -22,6 +36,7 @@ export default function Agenda() {
   const width = Dimensions.get('window').width;
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
+  const translateXHeader = useSharedValue(0);
 
   useEffect(() => {
     setCitas(getCitasByDate(selectedDateISO));
@@ -34,21 +49,39 @@ export default function Agenda() {
     opacity.value = 1;
   };
 
-  const pan = Gesture.Pan().onEnd((e) => {
-    if (e.translationX < -50 && currentIndex < citas.length - 1) {
-      translateX.value = withTiming(-width, { duration: 200 }, (finished) => {
-        if (finished) runOnJS(changeIndex)(currentIndex + 1);
-      });
-      opacity.value = withTiming(0, { duration: 200 });
-    } else if (e.translationX > 50 && currentIndex > 0) {
-      translateX.value = withTiming(width, { duration: 200 }, (finished) => {
-        if (finished) runOnJS(changeIndex)(currentIndex - 1);
-      });
-      opacity.value = withTiming(0, { duration: 200 });
-    } else {
-      translateX.value = withTiming(0);
-    }
-  });
+  const triggerHaptic = () => {
+    Haptics.selectionAsync?.().catch(() => {});
+  };
+
+  const pan = Gesture.Pan()
+    .onChange((e) => {
+      translateX.value = e.translationX;
+    })
+    .onEnd((e) => {
+      if (e.translationX < -50 && currentIndex < citas.length - 1) {
+        translateX.value = withTiming(-width, { duration: 200 }, (finished) => {
+          if (finished) runOnJS(changeIndex)(currentIndex + 1);
+        });
+        opacity.value = withTiming(0, { duration: 200 });
+      } else if (e.translationX > 50 && currentIndex > 0) {
+        translateX.value = withTiming(width, { duration: 200 }, (finished) => {
+          if (finished) runOnJS(changeIndex)(currentIndex - 1);
+        });
+        opacity.value = withTiming(0, { duration: 200 });
+      } else {
+        const atLeftEdge = currentIndex === 0 && e.translationX > 0;
+        const atRightEdge =
+          currentIndex === citas.length - 1 && e.translationX < 0;
+        if (atLeftEdge || atRightEdge) {
+          runOnJS(triggerHaptic)();
+          translateX.value = withTiming(0, { duration: 200 }, () => {
+            nudge(translateX, atLeftEdge ? 'right' : 'left');
+          });
+        } else {
+          translateX.value = withTiming(0);
+        }
+      }
+    });
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
@@ -58,6 +91,25 @@ export default function Agenda() {
   const formattedDate = dayjs(selectedDateISO).format('ddd, D MMM YYYY');
   const current = citas[currentIndex];
 
+  const orderedDates = Object.keys(citasByDate).sort((a, b) =>
+    dayjs(a).diff(dayjs(b))
+  );
+  const dayIndex = orderedDates.indexOf(selectedDateISO);
+  let isFirstDay = false;
+  let isLastDay = false;
+  if (dayIndex !== -1) {
+    isFirstDay = dayIndex === 0;
+    isLastDay = dayIndex === orderedDates.length - 1;
+  } else {
+    const minDate = orderedDates[0];
+    const maxDate = orderedDates[orderedDates.length - 1];
+    if (dayjs(selectedDateISO).isBefore(minDate)) {
+      isFirstDay = true;
+    } else if (dayjs(selectedDateISO).isAfter(maxDate)) {
+      isLastDay = true;
+    }
+  }
+
   const goPrev = () =>
     setSelectedDateISO(dayjs(selectedDateISO).subtract(1, 'day').format('YYYY-MM-DD'));
   const goNext = () =>
@@ -65,19 +117,51 @@ export default function Agenda() {
   const goToday = () => setSelectedDateISO(dayjs().format('YYYY-MM-DD'));
   const onSelectDate = (dateISO) => setSelectedDateISO(dateISO);
 
+  const handlePrev = () => {
+    if (isFirstDay) {
+      triggerHaptic();
+      nudge(translateXHeader, 'right');
+    } else {
+      goPrev();
+    }
+  };
+
+  const handleNext = () => {
+    if (isLastDay) {
+      triggerHaptic();
+      nudge(translateXHeader, 'left');
+    } else {
+      goNext();
+    }
+  };
+
+  const headerStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateXHeader.value }],
+  }));
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerRow}>
-        <TouchableOpacity onPress={goPrev}>
+      <Animated.View style={[styles.headerRow, headerStyle]}>
+        <TouchableOpacity
+          onPress={handlePrev}
+          disabled={isFirstDay}
+          style={[styles.navButton, isFirstDay && styles.navDisabled]}
+          accessibilityState={isFirstDay ? { disabled: true } : undefined}
+        >
           <Text style={styles.nav}>◀︎</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.chip}>
           <Text style={styles.chipText}>{formattedDate}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={goNext}>
+        <TouchableOpacity
+          onPress={handleNext}
+          disabled={isLastDay}
+          style={[styles.navButton, isLastDay && styles.navDisabled]}
+          accessibilityState={isLastDay ? { disabled: true } : undefined}
+        >
           <Text style={styles.nav}>▶︎</Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
       <TouchableOpacity onPress={goToday} style={styles.todayButton}>
         <Text style={styles.todayText}>Hoy</Text>
       </TouchableOpacity>
@@ -119,6 +203,12 @@ const styles = StyleSheet.create({
   nav: {
     ...typography.h2,
     color: colors.text,
+  },
+  navButton: {
+    paddingHorizontal: spacing.sm,
+  },
+  navDisabled: {
+    opacity: 0.35,
   },
   chip: {
     paddingVertical: spacing.xs,
