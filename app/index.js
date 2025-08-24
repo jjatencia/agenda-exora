@@ -3,17 +3,17 @@ import { Text, TextInput, Button, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 
-// Pantalla de login simple con validación mock
+// Pantalla de login simple con validación de longitud > 3
 export default function Login() {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = () => {
-    if (email.trim() && code === '1234') {
+    if (email.length > 3 && code.length > 3) {
       router.push('/agenda');
     } else {
-      setError('Credenciales inválidas');
+      setError('Datos inválidos');
     }
   };
 
@@ -23,7 +23,7 @@ export default function Login() {
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#888"
+        placeholderTextColor="#9ca3af"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -32,13 +32,13 @@ export default function Login() {
       <TextInput
         style={styles.input}
         placeholder="Código"
-        placeholderTextColor="#888"
+        placeholderTextColor="#9ca3af"
         value={code}
         onChangeText={setCode}
         secureTextEntry
       />
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <Button title="Login" onPress={handleLogin} />
+      <Button title="Entrar" onPress={handleLogin} />
     </SafeAreaView>
   );
 }
@@ -46,21 +46,23 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#f5f7fb',
     padding: 16,
     justifyContent: 'center',
   },
   title: {
-    color: '#fff',
+    color: '#111827',
     fontSize: 24,
     marginBottom: 24,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#222',
-    color: '#fff',
+    backgroundColor: '#ffffff',
+    color: '#111827',
     padding: 12,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     marginBottom: 12,
   },
   error: {

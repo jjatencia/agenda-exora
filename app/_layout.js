@@ -1,16 +1,16 @@
+import React from 'react';
 import { Stack } from 'expo-router';
-import { ThemeProvider, DarkTheme } from '@react-navigation/native';
+import { ThemeProvider, DefaultTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import React from 'react';
 
-// Layout principal con tema oscuro y soporte para gestos
+// Layout principal con tema claro y soporte para gestos
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={DarkTheme}>
+      <ThemeProvider value={DefaultTheme}>
         <Stack screenOptions={{ headerShown: false }} />
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
       </ThemeProvider>
     </GestureHandlerRootView>
   );
