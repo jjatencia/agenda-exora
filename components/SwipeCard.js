@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { colors, radius, spacing, typography } from '../src/theme/exora';
 
 // Tarjeta que ocupa toda la pantalla con scroll interno
 export default function SwipeCard({ cita }) {
@@ -35,7 +36,7 @@ export default function SwipeCard({ cita }) {
           style={styles.noShow}
           onPress={() => console.log('NO_SHOW', cita.id)}
         >
-          <Text style={styles.noShowText}>No se ha presentado a la cita</Text>
+          <Text style={styles.noShowText}>NO SE HA PRESENTADO A LA CITA</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -45,59 +46,53 @@ export default function SwipeCard({ cita }) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    borderRadius: 18,
+    backgroundColor: colors.card,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    padding: 20,
+    borderColor: colors.border,
+    padding: spacing.lg,
   },
   content: {
-    paddingBottom: 40,
+    paddingBottom: spacing.xl,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#0f172a',
-    marginBottom: 20,
+    ...typography.h1,
     textAlign: 'center',
+    marginBottom: spacing.lg,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
   label: {
     width: 120,
-    color: '#475569',
-    fontSize: 16,
-    fontWeight: '500',
+    ...typography.label,
   },
   value: {
     flex: 1,
-    color: '#111827',
-    fontSize: 20,
-    fontWeight: '600',
+    ...typography.value,
     textAlign: 'right',
   },
   link: {
     textDecorationLine: 'underline',
+    color: colors.primary,
   },
   footer: {
-    paddingTop: 20,
+    paddingTop: spacing.lg,
   },
   noShow: {
-    backgroundColor: '#ef4444',
-    borderRadius: 12,
-    height: 52,
+    backgroundColor: colors.secondary,
+    borderRadius: radius.lg,
+    height: 56,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
   },
   noShowText: {
+    ...typography.label,
     color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
     textTransform: 'uppercase',
   },
 });
