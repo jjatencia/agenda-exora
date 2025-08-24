@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, View, TouchableOpacity, Dimensions } from 'react-native';
+import { Text, StyleSheet, View, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
@@ -47,13 +47,7 @@ export default function Agenda() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        {index > 0 && (
-          <TouchableOpacity onPress={() => changeIndex(index - 1)}>
-            <Text style={styles.back}>◀︎</Text>
-          </TouchableOpacity>
-        )}
         <Text style={styles.headerTitle}>Citas de hoy</Text>
-        <View style={{ width: 24 }} />
       </View>
       <GestureDetector gesture={pan}>
         <Animated.View style={[styles.cardWrapper, animatedStyle]}>
@@ -61,8 +55,9 @@ export default function Agenda() {
         </Animated.View>
       </GestureDetector>
       <View style={styles.footer}>
-        <Text style={styles.pagination}>{index + 1}/{citas.length}</Text>
-        <Text style={styles.hint}>Desliza para cambiar</Text>
+        <Text style={styles.footerText}>
+          {`${index + 1}/${citas.length} — Desliza izquierda/derecha`}
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -75,35 +70,24 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  back: {
-    fontSize: 18,
-    color: '#111827',
-    paddingRight: 8,
+    marginBottom: 20,
   },
   headerTitle: {
-    fontSize: 20,
-    color: '#111827',
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#0f172a',
     textAlign: 'center',
-    flex: 1,
   },
   cardWrapper: {
     flex: 1,
   },
   footer: {
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 20,
   },
-  pagination: {
-    color: '#111827',
-    marginBottom: 4,
-  },
-  hint: {
-    color: '#6b7280',
-    fontSize: 12,
+  footerText: {
+    color: '#64748b',
+    fontSize: 14,
   },
 });

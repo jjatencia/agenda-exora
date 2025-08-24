@@ -1,15 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking } from 'react-native';
 
-// Tarjeta que ocupa toda la pantalla con scroll interno y acciones inferiores
+// Tarjeta que ocupa toda la pantalla con scroll interno
 export default function SwipeCard({ cita }) {
   const handleCall = () => {
     Linking.openURL('tel:' + cita.telefono);
   };
 
-  const Row = ({ icon, label, value, onPress }) => (
+  const Row = ({ label, value, onPress }) => (
     <View style={styles.row}>
-      <Text style={styles.icon}>{icon}</Text>
       <Text style={styles.label}>{label}</Text>
       <Text style={[styles.value, onPress && styles.link]} onPress={onPress}>
         {value}
@@ -21,29 +20,21 @@ export default function SwipeCard({ cita }) {
     <View style={styles.card}>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content}>
         <Text style={styles.title}>Reserva</Text>
-        <Row icon="👤" label="Cliente" value={cita.cliente} />
-        <Row icon="📞" label="Teléfono" value={cita.telefono} onPress={handleCall} />
-        <Row icon="💼" label="Servicio" value={cita.servicio} />
-        <Row icon="✨" label="Variante" value={cita.variante} />
-        <Row icon="📍" label="Sucursal" value={cita.sucursal} />
-        <Row icon="🧑‍💼" label="Profesional" value={cita.profesional} />
-        <Row icon="📅" label="Fecha" value={cita.fecha} />
-        <Row icon="⏰" label="Hora" value={cita.hora} />
-        <Row icon="🏷️" label="Descuentos" value={cita.descuentos} />
+        <Row label="Cliente" value={cita.cliente} />
+        <Row label="Teléfono" value={cita.telefono} onPress={handleCall} />
+        <Row label="Servicio" value={cita.servicio} />
+        <Row label="Variante" value={cita.variante} />
+        <Row label="Sucursal" value={cita.sucursal} />
+        <Row label="Profesional" value={cita.profesional} />
+        <Row label="Fecha" value={cita.fecha} />
+        <Row label="Hora" value={cita.hora} />
+        <Row label="Descuentos" value={cita.descuentos} />
       </ScrollView>
       <View style={styles.footer}>
-        <View style={styles.bar}>
-          <TouchableOpacity style={styles.barButton}>
-            <Text style={styles.barIcon}>€</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.barButton}>
-            <Text style={styles.barIcon}>✏️</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.barButton}>
-            <Text style={styles.barIcon}>🗑️</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity style={styles.noShow}>
+        <TouchableOpacity
+          style={styles.noShow}
+          onPress={() => console.log('NO_SHOW', cita.id)}
+        >
           <Text style={styles.noShowText}>No se ha presentado a la cita</Text>
         </TouchableOpacity>
       </View>
@@ -61,61 +52,52 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   content: {
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
   title: {
-    fontSize: 22,
-    color: '#111111',
-    marginBottom: 16,
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#0f172a',
+    marginBottom: 20,
     textAlign: 'center',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  icon: {
-    marginRight: 8,
-    fontSize: 16,
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
   label: {
-    width: 100,
-    color: '#6b7280',
-    fontSize: 14,
+    width: 120,
+    color: '#475569',
+    fontSize: 16,
+    fontWeight: '500',
   },
   value: {
     flex: 1,
     color: '#111827',
-    fontSize: 14,
+    fontSize: 20,
+    fontWeight: '600',
+    textAlign: 'right',
   },
   link: {
     textDecorationLine: 'underline',
   },
   footer: {
-    paddingTop: 10,
-  },
-  bar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 10,
-  },
-  barButton: {
-    padding: 10,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 8,
-  },
-  barIcon: {
-    fontSize: 18,
-    color: '#111827',
+    paddingTop: 20,
   },
   noShow: {
-    backgroundColor: '#e5e7eb',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: '#ef4444',
+    borderRadius: 12,
+    height: 52,
     alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   noShowText: {
-    color: '#111827',
-    fontWeight: 'bold',
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+    textTransform: 'uppercase',
   },
 });
