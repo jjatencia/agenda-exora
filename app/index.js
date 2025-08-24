@@ -16,21 +16,18 @@ export default function Login() {
 
   function onSubmit() {
     if (!canSubmit) return;
-    // TODO: integrar API real; si remember==true, persistir después de autenticar
     router.push("/agenda");
   }
 
   return (
     <SafeAreaView style={styles.screen}>
       <StatusBar style="light" />
-      {/* HEADER MORADO CON GRADIENTE */}
       <LinearGradient
         colors={["#555BF6", "#6A67F7"]}
         start={{ x: 0, y: 0.2 }}
         end={{ x: 1, y: 1 }}
         style={styles.header}
       >
-        {/* Marca minimal sin imágenes */}
         <View style={styles.brandWrap}>
           <View style={styles.quarter} />
           <View style={styles.dot} />
@@ -38,7 +35,6 @@ export default function Login() {
         <Text style={styles.title}>Inicia sesión</Text>
       </LinearGradient>
 
-      {/* FORMULARIO */}
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.formWrap}>
         <View style={styles.field}>
           <Text style={styles.label}>Email</Text>
@@ -67,18 +63,12 @@ export default function Login() {
           {!isPwdValid && pwd.length > 0 && <Text style={styles.errTxt}>Mínimo 4 caracteres</Text>}
         </View>
 
-        {/* RECORDARME */}
-        <Pressable style={styles.rememberRow} onPress={() => setRemember((v) => !v)} accessibilityRole="checkbox" accessibilityState={{ checked: remember }}>
+        <Pressable style={styles.rememberRow} onPress={() => setRemember(v => !v)} accessibilityRole="checkbox" accessibilityState={{ checked: remember }}>
           <View style={[styles.checkbox, remember && styles.checkboxOn]} />
           <Text style={styles.rememberTxt}>Recordarme</Text>
         </Pressable>
 
-        {/* ENTRAR */}
-        <Pressable
-          onPress={onSubmit}
-          disabled={!canSubmit}
-          style={[styles.btn, !canSubmit && { opacity: 0.5 }]}
-        >
+        <Pressable onPress={onSubmit} disabled={!canSubmit} style={[styles.btn, !canSubmit && { opacity: 0.5 }]}>
           <Text style={styles.btnTxt}>Entrar</Text>
         </Pressable>
       </KeyboardAvoidingView>
