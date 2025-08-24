@@ -53,31 +53,35 @@ export default function Agenda() {
     Haptics.selectionAsync?.().catch(() => {});
   };
 
-  const pan = Gesture.Pan().onEnd((e) => {
-    if (e.translationX < -50) {
-      if (currentIndex < citas.length - 1) {
+  const pan = Gesture.Pan()
+    .onChange((e) => {
+      translateX.value = e.translationX;
+    })
+    .onEnd((e) => {
+      if (e.translationX < -50 && currentIndex < citas.length - 1) {
         translateX.value = withTiming(-width, { duration: 200 }, (finished) => {
           if (finished) runOnJS(changeIndex)(currentIndex + 1);
         });
         opacity.value = withTiming(0, { duration: 200 });
-      } else {
-        runOnJS(triggerHaptic)();
-        nudge(translateX, 'left');
-      }
-    } else if (e.translationX > 50) {
-      if (currentIndex > 0) {
+      } else if (e.translationX > 50 && currentIndex > 0) {
         translateX.value = withTiming(width, { duration: 200 }, (finished) => {
           if (finished) runOnJS(changeIndex)(currentIndex - 1);
         });
         opacity.value = withTiming(0, { duration: 200 });
       } else {
-        runOnJS(triggerHaptic)();
-        nudge(translateX, 'right');
+        const atLeftEdge = currentIndex === 0 && e.translationX > 0;
+        const atRightEdge =
+          currentIndex === citas.length - 1 && e.translationX < 0;
+        if (atLeftEdge || atRightEdge) {
+          runOnJS(triggerHaptic)();
+          translateX.value = withTiming(0, { duration: 200 }, () => {
+            nudge(translateX, atLeftEdge ? 'right' : 'left');
+          });
+        } else {
+          translateX.value = withTiming(0);
+        }
       }
-    } else {
-      translateX.value = withTiming(0);
-    }
-  });
+    });
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
@@ -140,7 +144,8 @@ export default function Agenda() {
       <Animated.View style={[styles.headerRow, headerStyle]}>
         <TouchableOpacity
           onPress={handlePrev}
-          style={[styles.navButton, isFirstDay && styles.navDisabled]}
+          disabled={isFirstDay}
+          style={[styles.navButton, isFirstDay && styles.navHidden]}
           accessibilityState={isFirstDay ? { disabled: true } : undefined}
         >
           <Text style={styles.nav}>◀︎</Text>
@@ -150,6 +155,7 @@ export default function Agenda() {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleNext}
+          disabled={isLastDay}
           style={[styles.navButton, isLastDay && styles.navDisabled]}
           accessibilityState={isLastDay ? { disabled: true } : undefined}
         >
@@ -198,9 +204,14 @@ const styles = StyleSheet.create({
     ...typography.h2,
     color: colors.text,
   },
-  navButton: {},
+  navButton: {
+    paddingHorizontal: spacing.sm,
+  },
   navDisabled: {
     opacity: 0.35,
+  },
+  navHidden: {
+    opacity: 0,
   },
   chip: {
     paddingVertical: spacing.xs,
