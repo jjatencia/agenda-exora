@@ -145,7 +145,7 @@ export default function Agenda() {
         <TouchableOpacity
           onPress={handlePrev}
           disabled={isFirstDay}
-          style={[styles.navButton, isFirstDay && styles.navHidden]}
+          style={[styles.navButton, isFirstDay && styles.navDisabled]}
           accessibilityState={isFirstDay ? { disabled: true } : undefined}
         >
           <Text style={styles.nav}>◀︎</Text>
@@ -209,9 +209,6 @@ const styles = StyleSheet.create({
   },
   navDisabled: {
     opacity: 0.35,
-  },
-  navHidden: {
-    opacity: 0,
   },
   chip: {
     paddingVertical: spacing.xs,
