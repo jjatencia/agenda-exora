@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "agenda-exora",
-    "slug": "agenda-exora",
+    "name": "Agenda Exora Dev",
+    "slug": "agenda-exora-dev",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
